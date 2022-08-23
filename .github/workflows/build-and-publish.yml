@@ -67,7 +67,6 @@ jobs:
             linux/arm/v7
             linux/arm64
             linux/ppc64le
-            linux/s390x
           push: true
           build-args: |
             APP_NAME=${{ env.APP_NAME }}
