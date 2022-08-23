@@ -61,12 +61,8 @@ jobs:
           context: .
           file: ./docker/Dockerfile
           platforms: |
-            linux/386
             linux/amd64
-            linux/arm/v6
-            linux/arm/v7
             linux/arm64
-            linux/ppc64le
           push: true
           build-args: |
             APP_NAME=${{ env.APP_NAME }}
