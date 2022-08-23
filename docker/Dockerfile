@@ -1,5 +1,5 @@
 FROM alpine:3.13 AS builder
-LABEL maintainer="k@ndk.name"
+LABEL maintainer="zhonger@live.cn"
 
 ARG BUILD_DEPENDENCIES="build-base \
     libffi-dev \

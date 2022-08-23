@@ -1,17 +1,51 @@
 version: "3"
 
 services:
-  app:
-    image: ngoduykhanh/powerdns-admin:latest
-    container_name: powerdns_admin
+  pdns:
+    image: zhonger/pdns:latest
+    restart: always
     ports:
-      - "9191:80"
+      - "853:53/tcp"
+      - "853:53/udp"
+      # - "8081:8081"
+    environment:
+      - PDNS_launch=gsqlite3
+      - PDNS_gsqlite3_database=/var/lib/powerdns/pdns.sqlite3
+      - PDNS_webserver_address=0.0.0.0
+      - PDNS_webserver_allow_from=127.0.0.1,10.0.0.0/8,172.0.0.0/8,192.168.0.0/16
+      - PDNS_api=yes
+      - PDNS_api_key=9785d218-21dd-11ed-992e-525345f75170
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./powerdns:/var/lib/powerdns
+  db:
+    image: arm64v8/mysql:latest
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+      - MYSQL_DATABASE=powerdnsadmin
+      - MYSQL_USER=pdns 
+      - MYSQL_PASSWORD=mypdns
+    restart: always
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ./pda-mysql:/var/lib/mysql
+
+  app:
+    image: zhonger/powerdns-admin:latest
+    restart: always
+    depends_on:
+      - db
+      - pdns
+    ports:
+      - "8080:80"
     logging:
       driver: json-file
       options:
         max-size: 50m
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
     environment:
-      - SQLALCHEMY_DATABASE_URI=mysql://pda:changeme@host.docker.internal/pda
+      - SQLALCHEMY_DATABASE_URI=mysql://pdns:mypdns@db/powerdnsadmin
       - GUNICORN_TIMEOUT=60
       - GUNICORN_WORKERS=2
       - GUNICORN_LOGLEVEL=DEBUG
